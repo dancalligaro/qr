@@ -2,23 +2,65 @@
 <html>
 <head>
 	<title>Simplest QR Generator powered by Google Chart API by @dancalligaro</title>
-	<style>body{text-align: center;}</style>
 	<meta name="description" content="Simplest QR Generator powered by Google Chart API by @dancalligaro">
 	<meta name="keywords" content="QR generator">
 	<meta name="author" content="@dancalligaro">
+	<style>
+body{text-align: center;}
+.panel{
+	width: 450px;
+	height: 500px;
+	border: solid 1px #aaa;
+	margin: 0 auto;
+}
+li>div.url{
+	cursor: pointer;
+}
+li>div.url:hover{
+	background: #eee;
+}
+#historyList{
+	height: 380px;
+	overflow: scroll;
+	text-align: left;
+}
+#historyList .created{
+	font-size: 10px;
+	color: #888;
+}
+ul, li{
+	margin:0;
+	padding:0;
+}
+	</style>
 </head>
 <body>
 	<h1>Simplest QR Generator</h1>
-	<textarea id="t" rows="5" cols="40"></textarea><br>
-	<a id="clear" href="javascript:void(0)">clear</a><br>
-	<img id="qr" style="display: none;" />
+
+	<div id="generator" class="panel">
+		<textarea id="t" rows="5" cols="40"></textarea><br>
+		<a id="showHistory" href="javascript:void(0)">history</a>
+		<a id="clear" href="javascript:void(0)">clear</a><br>
+		<img id="qr" style="display: none;" />
+	</div>
+
+	<div id="history" class="panel" style="display: none;">
+		<h2>Generated QR Codes</h2>
+		<a id="back" href="javascript:void(0)">back</a>
+		<br />
+		<ul id="historyList">
+		</ul>
+	</div>
 
 	<script>
 
 var t = document.getElementById('t'), 
 	qr = document.getElementById('qr'), 
 	to, 
-	lastValue;
+	lastValue, 
+	history;
+
+	loadHistory();
 
 t.onkeyup = function(){
 	if(t.value != lastValue){
@@ -26,6 +68,7 @@ t.onkeyup = function(){
 		if(to) clearTimeout(to);
 		to = setTimeout(function(){
 			if(t.value){
+				saveOrUpdateHistory(t.value);
 				qr.src = 'http://chart.googleapis.com/chart?cht=qr&chs=400x400&chl=' + encodeURIComponent(t.value)
 			}
 		}, 300);
@@ -46,6 +89,72 @@ document.getElementById('clear').onclick = function(){
 	t.value = '';
 	t.focus();
 };
+
+document.getElementById('showHistory').onclick = function(){
+	showHistoryByLastCreated();
+	showPanel('history');
+}
+
+document.getElementById('back').onclick = function(){
+	showPanel('generator');
+}
+
+function showPanel(panel){
+	var i, panels = ['history', 'generator'];
+	for(i=0;i<panels.length;i++){
+		document.getElementById(panels[i]).style.display = 'none';	
+	}
+	document.getElementById(panel).style.display = 'block';
+}
+
+function loadHistory(){
+	var savedHistory = localStorage.getItem('history');
+	if(savedHistory){
+		history =  JSON.parse(savedHistory);
+	}else{
+		history = [];
+	}
+}
+
+function saveHistory(){
+	localStorage.setItem('history', JSON.stringify(history));
+}
+
+function saveOrUpdateHistory(value){
+	
+	//insert
+	history.push({
+		value: value,
+		created: + new Date()
+	});
+	
+	saveHistory();
+
+}
+
+function showHistoryResults(results){
+	
+	var i, renderedItems = [];
+
+	for(i=results.length-1;i>=0;i--){
+		renderedItems.push('<li><div class="url">' + escape(results[i].value) + '</div><div class="created">' + new Date(results[i].created) +'</div></li>');
+	}
+
+	document.getElementById('historyList').innerHTML = renderedItems.join('');
+	
+}
+
+function showHistoryByLastCreated(){
+	showHistoryResults(history);
+}
+
+document.getElementById('historyList').onclick = function(event){
+	if(event.target.attributes['class'].value.indexOf('url') > -1){
+		showPanel('generator');
+		t.value = unescape(event.target.innerHTML);
+		setTimeout(function(){ t.onkeyup(); } , 1);
+	}
+}
 
 	</script>
 
