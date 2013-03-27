@@ -1,0 +1,53 @@
+<!doctype html5>
+<html>
+<head>
+	<title>Simplest QR Generator powered by Google Chart API by @dancalligaro</title>
+	<style>body{text-align: center;}</style>
+	<meta name="description" content="Simplest QR Generator powered by Google Chart API by @dancalligaro">
+	<meta name="keywords" content="QR generator">
+	<meta name="author" content="@dancalligaro">
+</head>
+<body>
+	<h1>Simplest QR Generator</h1>
+	<textarea id="t" rows="5" cols="40"></textarea><br>
+	<a id="clear" href="javascript:void(0)">clear</a><br>
+	<img id="qr" style="display: none;" />
+
+	<script>
+
+var t = document.getElementById('t'), 
+	qr = document.getElementById('qr'), 
+	to, 
+	lastValue;
+
+t.onkeyup = function(){
+	if(t.value != lastValue){
+		qr.style.display = 'none';
+		if(to) clearTimeout(to);
+		to = setTimeout(function(){
+			if(t.value){
+				qr.src = 'http://chart.googleapis.com/chart?cht=qr&chs=400x400&chl=' + encodeURIComponent(t.value)
+			}
+		}, 300);
+		lastValue = t.value;
+	}
+};
+
+qr.onload = function(){
+	qr.style.display = 'inline';
+}
+
+t.onclick = function(){
+	t.select();
+}
+
+document.getElementById('clear').onclick = function(){
+	qr.style.display = 'none';
+	t.value = '';
+	t.focus();
+};
+
+	</script>
+
+</body>
+</html>
