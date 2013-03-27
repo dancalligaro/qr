@@ -137,7 +137,7 @@ function showHistoryResults(results){
 	var i, renderedItems = [];
 
 	for(i=results.length-1;i>=0;i--){
-		renderedItems.push('<li><div class="url">' + escape(results[i].value) + '</div><div class="created">' + new Date(results[i].created) +'</div></li>');
+		renderedItems.push('<li><div class="url">' + results[i].value + '</div><div class="created">' + new Date(results[i].created) +'</div></li>');
 	}
 
 	document.getElementById('historyList').innerHTML = renderedItems.join('');
@@ -151,7 +151,7 @@ function showHistoryByLastCreated(){
 document.getElementById('historyList').onclick = function(event){
 	if(event.target.attributes['class'].value.indexOf('url') > -1){
 		showPanel('generator');
-		t.value = unescape(event.target.innerHTML);
+		t.value = event.target.innerHTML;
 		setTimeout(function(){ t.onkeyup(); } , 1);
 	}
 }
