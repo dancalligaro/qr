@@ -155,6 +155,14 @@ document.getElementById('historyList').onclick = function(event){
 		setTimeout(function(){ t.onkeyup(); } , 1);
 	}
 }
+//On load, parse the url to see if there is something to show
+var parts = window.location.href.split('?');
+if(parts.length > 1){
+
+	var url = decodeURIComponent(parts[1])
+	t.value = url;
+	t.onkeyup();
+	}
 
 	</script>
 
